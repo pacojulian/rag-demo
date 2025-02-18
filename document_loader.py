@@ -38,7 +38,7 @@ def ollama_chat(query, context):
         return f"Failed to decode JSON response: {response.text}"
 # Async function to load PDF and process it
 async def load_and_process_pdf():
-    file_path = "./uno.pdf"
+    file_path = "./safety.pdf"
     loader = PyPDFLoader(file_path)
     pages = []
 
