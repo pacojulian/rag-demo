@@ -23,6 +23,36 @@ export default function DocumentChat() {
     const [activeTab, setActiveTab] = React.useState<'ingest' | 'chat'>('ingest')
     const [messages, setMessages] = React.useState<Array<{ role: 'user' | 'assistant', content: string }>>([])
     const [input, setInput] = React.useState('')
+    const [loading, setLoading] = React.useState(false) // New loading state
+
+    interface ISVGProps extends React.SVGProps<SVGSVGElement> {
+        size?: number;
+        className?: string;
+    }
+
+    const LoadingSpinner = ({
+        size = 24,
+        className,
+        ...props
+    }: ISVGProps) => {
+        return (
+            <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width={size}
+                height={size}
+                {...props}
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className={`animate-spin ${className}`}
+            >
+                <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+            </svg>
+        );
+    };
 
     const AxiosInstance = axios.create({
         baseURL: 'http://127.0.0.1:8000',
@@ -49,7 +79,6 @@ export default function DocumentChat() {
         }
     }
 
-
     const uplodFileApi = async (file: File) => {
         const formData = new FormData();
         formData.append('file', file);
@@ -67,19 +96,21 @@ export default function DocumentChat() {
             console.log(data);
             alert('File uploaded successfully')
         });
-
     }
 
     const handleSendMessage = () => {
         if (input.trim()) {
             setMessages(prevMessages => [...prevMessages, { role: 'user', content: input }]);
             setInput('');
+            setLoading(true); // Set loading to true when sending the message
+
             chatApi(input).then((data) => {
                 setMessages(prevMessages => [...prevMessages, { role: 'assistant', content: data }]);
+            }).finally(() => {
+                setLoading(false); // Set loading to false when the API call is complete
             });
         }
     }
-
 
     return (
         <SidebarProvider>
@@ -139,6 +170,11 @@ export default function DocumentChat() {
                                         {message.content}
                                     </div>
                                 ))}
+                                {loading && (
+                                    <div className="flex justify-center">
+                                        <LoadingSpinner size={32} className="text-gray-500" />
+                                    </div>
+                                )}
                             </div>
                             <div className="flex items-center space-x-2">
                                 <Textarea
@@ -147,7 +183,7 @@ export default function DocumentChat() {
                                     placeholder="Type your message here..."
                                     className="flex-1"
                                 />
-                                <Button onClick={handleSendMessage}>
+                                <Button onClick={handleSendMessage} disabled={loading}>
                                     <Send className="h-4 w-4" />
                                 </Button>
                             </div>
@@ -158,3 +194,4 @@ export default function DocumentChat() {
         </SidebarProvider>
     )
 }
+
