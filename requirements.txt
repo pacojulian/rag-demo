@@ -1,2 +1,8 @@
-langchain==0.0.x
-langchain-community==0.0.x
+langchain==0.3.19
+langchain-community==0.3.18
+faiss-cpu
+fastapi
+uvicorn
+sentence-transformers
+python-multipart
+pypdf
